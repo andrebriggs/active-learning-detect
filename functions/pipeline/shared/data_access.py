@@ -51,7 +51,7 @@ def get_unvisited_items(num_images):
                 images_to_update = '{0}'.format(', '.join(selected_images_to_tag.keys()))
                 cursor.execute("UPDATE Image_Tagging_State SET TagStateId = {0} WHERE ImageId IN ({1})".format(tagging_state,images_to_update))
                 db.commit()
-                print(f"Updated {len(selected_images_to_tag)} images to the state {tagging_state}")
+                print("Updated {0} images to the state {1}".format(len(selected_images_to_tag),tagging_state))
         else:
                 print("No images untagged images left!")
 
