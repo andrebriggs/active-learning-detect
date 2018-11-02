@@ -16,6 +16,6 @@ before_install:
   - npm i -g azure-functions-core-tools --unsafe-perm true
 
 script: 
-  - cd functions
+  - cd functions 
   - az login --service-principal --username "$APP_ID" --password "$PASSWORD" --tenant "$TENANT_ID"
   - az account get-access-token --query "accessToken" | func azure functionapp publish $APP_NAME --build-native-deps
