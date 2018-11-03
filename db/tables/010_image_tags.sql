@@ -1,6 +1,6 @@
 -- Set up table
 CREATE TABLE Image_Tags (
-    ImageTagId integer NOT NULL,
+    ImageTagId integer NOT NULL UNIQUE,
     ImageId integer REFERENCES Image_Info(ImageId) ON DELETE RESTRICT,
     --ClassificationId text NOT NULL, --Needed?
     --Confidence double precision NOT NULL, --Needed?

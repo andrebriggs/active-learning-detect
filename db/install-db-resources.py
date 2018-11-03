@@ -1,6 +1,7 @@
 import pg8000
 import os
 import sys
+import collections
 from os import listdir
 from os.path import isfile, join
 
@@ -59,6 +60,7 @@ def execute_files_in_dir_list(conn,list_of_sub_dirs):
     for sub_dir in list_of_sub_dirs:
         print("\n****\tReading files in '{0}' directory\t****\n".format(sub_dir))
         file_query_map = get_file_query_map(sub_dir)
+        file_query_map = collections.OrderedDict(sorted(file_query_map.items()))
         if '' in file_query_map.values():
             print("One of the files is empty. Please fix")
             return
@@ -83,6 +85,6 @@ def main(db_name):
 
 if __name__ == "__main__":
     if (len(sys.argv) != 2):
-        print("Expected 1 argument of type string for db_name")
+        print("Usage: python3 {0} (DB Name)".format(sys.argv[0]))
     else:
         main(str(sys.argv[1]))  
