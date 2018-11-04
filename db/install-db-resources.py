@@ -48,6 +48,7 @@ def create_database(conn, db_name):
         print("No database created due to empty parameter")
     return
 
+<<<<<<< HEAD
 def remove_database(conn, db_name):
     if db_name:
         cursor = conn.cursor()
@@ -60,6 +61,8 @@ def remove_database(conn, db_name):
         print("No database dropped due to empty parameter")
     return
 
+=======
+>>>>>>> Added support for user creating and auditing in DB, DAL, and deployment.
 def install_extensions(conn, list_of_extensions):
     if (len(list_of_extensions) > 0):
         cursor = conn.cursor()
