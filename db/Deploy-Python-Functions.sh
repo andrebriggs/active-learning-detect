@@ -26,8 +26,6 @@ if [[ "$StorageName" != *[a-z0-9]* ]]; then
     exit 1
 fi
 
-
-#$filtered_output=$(az extension list)
 # See http://jmespath.org/tutorial.html for querying
 filtered_output=$(az extension list --query "[?name=='functionapp'].name")
 
