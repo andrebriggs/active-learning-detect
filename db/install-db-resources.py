@@ -37,6 +37,18 @@ def create_database(conn, db_name):
         print("No database created due to empty parameter")
     return
 
+def install_extensions(conn, list_of_extensions):
+    if (len(list_of_extensions) > 0):
+        cursor = conn.cursor()
+        conn.autocommit = True
+        for ext in list_of_extensions:     
+            query = "CREATE EXTENSION {0};"
+            cursor.execute(query.format(ext))
+            print("Installed extension named '{0}'".format(ext))
+    else:
+        print("No extensions to install")
+    return
+
 def get_connection():
     return __new_postgres_connection(os.environ['DB_HOST'],os.environ['DB_NAME'],os.environ['DB_USER'],os.environ['DB_PASS'])
 
@@ -75,9 +87,12 @@ def main(db_name):
         #Set up the database
         create_database(get_default_connection(),db_name)
 
+        #Install extensions
+        install_extensions(get_connection_for_db(db_name),['citext'])
+
         #Connect to the new database and install resources
         conn = get_connection_for_db(db_name) 
-        sub_dirs = ["tables","functions","triggers"]
+        sub_dirs = ["tables","functions","triggers","data"]
         execute_files_in_dir_list(conn,sub_dirs)
 
         print("Done!")
