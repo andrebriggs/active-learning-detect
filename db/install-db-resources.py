@@ -25,6 +25,16 @@ def execute_queries_from_map(conn, file_query_map):
             print("\t{0}".format(file_path))         
     return
 
+def database_exists(conn, db_name):
+    result = -1
+    if db_name:
+        cursor = conn.cursor()
+        query = "SELECT 1 FROM pg_database WHERE datname='{0}'"
+        cursor.execute(query.format(db_name))
+        row = cursor.fetchone()
+        result = int(row[0])
+    return result == 1
+
 def create_database(conn, db_name):
     if db_name:
         cursor = conn.cursor()
@@ -78,10 +88,14 @@ def execute_files_in_dir_list(conn,list_of_sub_dirs):
             return
         execute_queries_from_map(conn,file_query_map)
 
-def main(db_name):
+def main(db_name, overwrite_db):
     try:
         if(os.getenv("DB_HOST") is None or os.getenv("DB_USER") is None or os.getenv("DB_PASS") is None):
             print("Please set environment variables for DB_HOST, DB_USER, DB_PASS")
+            return
+
+        if (database_exists(get_default_connection(), db_name) and not overwrite_db):
+            print("Database {0} already exists.".format(db_name))
             return
 
         #Set up the database
@@ -99,7 +113,14 @@ def main(db_name):
     except Exception as e: print(e)
 
 if __name__ == "__main__":
-    if (len(sys.argv) != 2):
-        print("Usage: python3 {0} (DB Name)".format(sys.argv[0]))
-    else:
-        main(str(sys.argv[1]))  
+    if len(sys.argv) < 2:
+        print("Usage: python3 {0} (DB Name) [-force]".format(sys.argv[0]))
+    elif len(sys.argv) == 2:
+        main(str(sys.argv[1]),False)
+    '''
+    elif str(sys.argv[2]).lower() == "-force":
+        main(str(sys.argv[1]),True)
+    else: 
+        main(str(sys.argv[1]),False)
+    '''
+            
