@@ -27,6 +27,7 @@ def execute_queries_from_map(conn, file_query_map):
     return
 
 def database_exists(conn, db_name):
+<<<<<<< HEAD
     if db_name:
         cursor = conn.cursor()
         query = "SELECT 1 FROM pg_database WHERE datname=%s"
@@ -35,6 +36,16 @@ def database_exists(conn, db_name):
         if row:
             return int(row[0]) == 1
     return False
+=======
+    result = -1
+    if db_name:
+        cursor = conn.cursor()
+        query = "SELECT 1 FROM pg_database WHERE datname='{0}'"
+        cursor.execute(query.format(db_name))
+        row = cursor.fetchone()
+        result = int(row[0])
+    return result == 1
+>>>>>>> Adding support to check if db already exists.
 
 def create_database(conn, db_name):
     if db_name:
@@ -116,6 +127,10 @@ def main(db_name, overwrite_db):
             print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
+        if (database_exists(get_default_connection(), db_name) and not overwrite_db):
+            print("Database {0} already exists.".format(db_name))
+            return
+
         #Set up the database
         create_database(get_default_connection(),db_name)
 
@@ -133,6 +148,7 @@ def main(db_name, overwrite_db):
         #traceback.print_exc()
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     parser = argparse.ArgumentParser()
 
     parser.add_argument('database_name', type=str,
@@ -144,3 +160,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     database_name = args.database_name
     main(args.database_name,args.overwrite)           
+=======
+    if len(sys.argv) < 2:
+        print("Usage: python3 {0} (DB Name) [-force]".format(sys.argv[0]))
+    elif len(sys.argv) == 2:
+        main(str(sys.argv[1]),False)
+    '''
+    elif str(sys.argv[2]).lower() == "-force":
+        main(str(sys.argv[1]),True)
+    else: 
+        main(str(sys.argv[1]),False)
+    '''
+            
+>>>>>>> Adding support to check if db already exists.
