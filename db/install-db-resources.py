@@ -94,6 +94,7 @@ def main(db_name, overwrite_db):
             print("Please set environment variables for DB_HOST, DB_USER, DB_PASS")
             return
 
+        #TODO: Allow overwriting of existing DB
         if (database_exists(get_default_connection(), db_name) and not overwrite_db):
             print("Database {0} already exists.".format(db_name))
             return
