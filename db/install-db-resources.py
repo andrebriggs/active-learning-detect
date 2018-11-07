@@ -28,6 +28,7 @@ def execute_queries_from_map(conn, file_query_map):
 
 def database_exists(conn, db_name):
 <<<<<<< HEAD
+<<<<<<< HEAD
     if db_name:
         cursor = conn.cursor()
         query = "SELECT 1 FROM pg_database WHERE datname=%s"
@@ -38,14 +39,22 @@ def database_exists(conn, db_name):
     return False
 =======
     result = -1
+=======
+>>>>>>> Fixed issue in db resoruces install file. Updated table schema
     if db_name:
         cursor = conn.cursor()
         query = "SELECT 1 FROM pg_database WHERE datname='{0}'"
         cursor.execute(query.format(db_name))
         row = cursor.fetchone()
+<<<<<<< HEAD
         result = int(row[0])
     return result == 1
 >>>>>>> Adding support to check if db already exists.
+=======
+        if row:
+            return int(row[0]) == 1
+    return False
+>>>>>>> Fixed issue in db resoruces install file. Updated table schema
 
 def create_database(conn, db_name):
     if db_name:
