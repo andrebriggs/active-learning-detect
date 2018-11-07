@@ -26,14 +26,14 @@ def execute_queries_from_map(conn, file_query_map):
     return
 
 def database_exists(conn, db_name):
-    result = -1
     if db_name:
         cursor = conn.cursor()
         query = "SELECT 1 FROM pg_database WHERE datname='{0}'"
         cursor.execute(query.format(db_name))
         row = cursor.fetchone()
-        result = int(row[0])
-    return result == 1
+        if row:
+            return int(row[0]) == 1
+    return False
 
 def create_database(conn, db_name):
     if db_name:
@@ -111,7 +111,9 @@ def main(db_name, overwrite_db):
         execute_files_in_dir_list(conn,sub_dirs)
 
         print("Done!")
-    except Exception as e: print(e)
+    except Exception as e: 
+        print(e)
+        #traceback.print_exc()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
