@@ -2,6 +2,7 @@ import pg8000
 import os
 import sys
 import collections
+import argparse
 from os import listdir
 from os.path import isfile, join
 
@@ -45,6 +46,18 @@ def create_database(conn, db_name):
         print("Successfully created database named '{0}'".format(db_name))
     else:
         print("No database created due to empty parameter")
+    return
+
+def remove_database(conn, db_name):
+    if db_name:
+        cursor = conn.cursor()
+        conn.autocommit = True
+        query = "DROP DATABASE {0};"
+        print("\nAttempting to drop database '{0}'...This may take up to 30 seconds".format(db_name))
+        cursor.execute(query.format(db_name))
+        print("Successfully dropped database named '{0}'".format(db_name))
+    else:
+        print("No database dropped due to empty parameter")
     return
 
 def install_extensions(conn, list_of_extensions):
@@ -94,9 +107,10 @@ def main(db_name, overwrite_db):
             print("Please set environment variables for DB_HOST, DB_USER, DB_PASS")
             return
 
-        #TODO: Allow overwriting of existing DB
-        if (database_exists(get_default_connection(), db_name) and not overwrite_db):
-            print("Database {0} already exists.".format(db_name))
+        if (database_exists(get_default_connection(), db_name) and overwrite_db):
+            remove_database(get_default_connection(),db_name)
+        else:         
+            print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
         #Set up the database
@@ -116,14 +130,16 @@ def main(db_name, overwrite_db):
         #traceback.print_exc()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python3 {0} (DB Name) [-force]".format(sys.argv[0]))
-    elif len(sys.argv) == 2:
-        main(str(sys.argv[1]),False)
-    '''
-    elif str(sys.argv[2]).lower() == "-force":
-        main(str(sys.argv[1]),True)
-    else: 
-        main(str(sys.argv[1]),False)
-    '''
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('database_name', type=str,
+                    help='The name of the database to create and install resources on')
+
+    parser.add_argument('-o','--overwrite', action='store_true',
+                    help='Will drop and restore a database if it already exists')
+
+    args = parser.parse_args()
+    database_name = args.database_name
+    main(args.database_name,args.overwrite)
+
             
