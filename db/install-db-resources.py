@@ -140,6 +140,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     database_name = args.database_name
-    main(args.database_name,args.overwrite)
-
-            
+    main(args.database_name,args.overwrite)           
