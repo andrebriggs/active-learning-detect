@@ -210,7 +210,16 @@ class ImageTagDataAccess(object):
 class ArgumentException(Exception):
     pass
 
+
 def main(): 
+    #################################################################
+    # This main method is an example of how to use some of 
+    #  the ImageTagDataAccess methods. For instance:
+    #   Creating a User
+    #   Onboarding of new images
+    #   Checking in images been tagged
+    #################################################################   
+
     #Replace me for testing
     db_config = DatabaseInfo("","","","")
     data_access = ImageTagDataAccess(PostGresProvider(db_config))
@@ -236,7 +245,6 @@ def generate_test_image_infos(count):
 
 def generate_test_image_tags(list_of_image_ids,max_tags_per_image,max_classifications_per_tag):
     list_of_image_tags = []
-    #round(random.uniform(1,2), N))
     for image_id in list(list_of_image_ids):
         tags_per_image = random.randint(1,max_tags_per_image)
         for i in range(tags_per_image):
