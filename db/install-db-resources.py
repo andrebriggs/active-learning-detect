@@ -106,10 +106,10 @@ def main(db_name, overwrite_db):
         if(os.getenv("DB_HOST") is None or os.getenv("DB_USER") is None or os.getenv("DB_PASS") is None):
             print("Please set environment variables for DB_HOST, DB_USER, DB_PASS")
             return
-
+        
         if (database_exists(get_default_connection(), db_name) and overwrite_db):
             remove_database(get_default_connection(),db_name)
-        else:         
+        elif (database_exists(get_default_connection(), db_name) and not overwrite_db):    
             print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
