@@ -69,6 +69,9 @@ def create_database(conn, db_name):
     return
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Updated deployment to be more idempotent. Updated table schemas
 def remove_database(conn, db_name):
     if db_name:
         cursor = conn.cursor()
@@ -81,8 +84,11 @@ def remove_database(conn, db_name):
         print("No database dropped due to empty parameter")
     return
 
+<<<<<<< HEAD
 =======
 >>>>>>> Added support for user creating and auditing in DB, DAL, and deployment.
+=======
+>>>>>>> Updated deployment to be more idempotent. Updated table schemas
 def install_extensions(conn, list_of_extensions):
     if (len(list_of_extensions) > 0):
         cursor = conn.cursor()
@@ -136,9 +142,10 @@ def main(db_name, overwrite_db):
             print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
-        #TODO: Allow overwriting of existing DB
-        if (database_exists(get_default_connection(), db_name) and not overwrite_db):
-            print("Database {0} already exists.".format(db_name))
+        if (database_exists(get_default_connection(), db_name) and overwrite_db):
+            remove_database(get_default_connection(),db_name)
+        else:         
+            print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
         #Set up the database
@@ -159,6 +166,9 @@ def main(db_name, overwrite_db):
 
 if __name__ == "__main__":
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Updated deployment to be more idempotent. Updated table schemas
     parser = argparse.ArgumentParser()
 
     parser.add_argument('database_name', type=str,
@@ -169,6 +179,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     database_name = args.database_name
+<<<<<<< HEAD
     main(args.database_name,args.overwrite)           
 =======
     if len(sys.argv) < 2:
@@ -183,3 +194,8 @@ if __name__ == "__main__":
     '''
             
 >>>>>>> Adding support to check if db already exists.
+=======
+    main(args.database_name,args.overwrite)
+
+            
+>>>>>>> Updated deployment to be more idempotent. Updated table schemas
