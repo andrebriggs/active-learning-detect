@@ -56,8 +56,8 @@ class ImageTagDataAccess(object):
             conn = self._db_provider.get_connection()
             try:
                 cursor = conn.cursor()
-                query = "INSERT INTO User_Info (UserName) VALUES ('{0}') ON CONFLICT (username) DO UPDATE SET username=EXCLUDED.username RETURNING UserId;"
-                cursor.execute(query.format(user_name))
+                query = "INSERT INTO User_Info (UserName) VALUES (%s) ON CONFLICT (username) DO UPDATE SET username=EXCLUDED.username RETURNING UserId;"
+                cursor.execute(query,(user_name,))
                 user_id = cursor.fetchone()[0]
                 conn.commit()
             finally: cursor.close()
@@ -104,8 +104,8 @@ class ImageTagDataAccess(object):
                     cursor = conn.cursor()
                     for img in list(list_of_image_infos):
                         query = ("INSERT INTO Image_Info (OriginalImageName,ImageLocation,Height,Width,CreatedByUser) "
-                                "VALUES ('{0}','{1}',{2},{3},{4}) RETURNING ImageId;")
-                        cursor.execute(query.format(img.image_name,img.image_location,str(img.height),str(img.width),user_id))
+                                "VALUES (%s,%s,%s,%s,%s) RETURNING ImageId;")
+                        cursor.execute(query,(img.image_name,img.image_location,img.height,img.width,user_id))
                         new_img_id = cursor.fetchone()[0]
                         url_to_image_id_map[img.image_location] = new_img_id
                     conn.commit()
@@ -138,8 +138,8 @@ class ImageTagDataAccess(object):
                 try:
                     image_ids_as_strings = [str(i) for i in list_of_image_ids]
                     images_to_update = '{0}'.format(', '.join(image_ids_as_strings))
-                    query = "UPDATE Image_Tagging_State SET TagStateId = {0}, ModifiedByUser = {2}, ModifiedDtim = now() WHERE ImageId IN ({1})"
-                    cursor.execute(query.format(new_image_tag_state,images_to_update,user_id))
+                    query = "UPDATE Image_Tagging_State SET TagStateId = %s, ModifiedByUser = %s, ModifiedDtim = now() WHERE ImageId IN (%s)"
+                    cursor.execute(query,(new_image_tag_state,user_id,images_to_update))
                     conn.commit()
                 finally: cursor.close()
             else:
@@ -171,6 +171,7 @@ class ImageTagDataAccess(object):
                 raise 
             finally: conn.close()
 
+    #TODO: Do safer query string formatting
     def update_tagged_images(self,list_of_image_tags, user_id):
         if(not list_of_image_tags):
             return  
@@ -221,7 +222,7 @@ def main():
     #################################################################   
 
     #Replace me for testing
-    db_config = DatabaseInfo("","","","")
+    db_config = DatabaseInfo("abrig-db.postgres.database.azure.com","micro","abrigtest@abrig-db","abcdABCD123")
     data_access = ImageTagDataAccess(PostGresProvider(db_config))
     user_id = data_access.create_user(getpass.getuser())
     print("The user id for '{0}' is {1}".format(getpass.getuser(),user_id))

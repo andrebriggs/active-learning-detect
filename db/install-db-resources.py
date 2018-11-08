@@ -29,8 +29,8 @@ def execute_queries_from_map(conn, file_query_map):
 def database_exists(conn, db_name):
     if db_name:
         cursor = conn.cursor()
-        query = "SELECT 1 FROM pg_database WHERE datname='{0}'"
-        cursor.execute(query.format(db_name))
+        query = "SELECT 1 FROM pg_database WHERE datname=%s"
+        cursor.execute(query,(db_name,))
         row = cursor.fetchone()
         if row:
             return int(row[0]) == 1
