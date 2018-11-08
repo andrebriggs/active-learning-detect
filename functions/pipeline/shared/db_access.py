@@ -53,11 +53,11 @@ def __new_postgres_connection(host_name, db_name, db_user, db_pass):
 
 def update_tagged_images(conn, list_of_image_ids):
     __update_images(conn, list_of_image_ids, ImageTagState.COMPLETED_TAG)
-    print(f"Updated {len(list_of_image_ids)} image(s) to the state {ImageTagState.COMPLETED_TAG.name}")
+    print("Updated {0} image(s) to the state {1}".format(len(list_of_image_ids),ImageTagState.COMPLETED_TAG.name))
 
 def update_untagged_images(conn, list_of_image_ids):
     __update_images(conn, list_of_image_ids, ImageTagState.INCOMPLETE_TAG)
-    print(f"Updated {len(list_of_image_ids)} image(s) to the state {ImageTagState.INCOMPLETE_TAG.name}")
+    print("Updated {0} image(s) to the state {1}".format(len(list_of_image_ids),ImageTagState.INCOMPLETE_TAG.name))
 
 def __update_images(conn, list_of_image_ids, new_image_tag_state):
     if not isinstance(new_image_tag_state, ImageTagState):
