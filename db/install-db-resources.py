@@ -136,15 +136,18 @@ def main(db_name, overwrite_db):
             print("Please set environment variables for DB_HOST, DB_USER, DB_PASS")
             return
         
+<<<<<<< HEAD
         if (database_exists(get_default_connection(), db_name) and overwrite_db):
             remove_database(get_default_connection(),db_name)
         elif (database_exists(get_default_connection(), db_name) and not overwrite_db):    
             print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
+=======
+>>>>>>> Fixed issue
         if (database_exists(get_default_connection(), db_name) and overwrite_db):
             remove_database(get_default_connection(),db_name)
-        else:         
+        elif (database_exists(get_default_connection(), db_name) and not overwrite_db):    
             print("Database {0} already exists. Please see --help for overwrite option.".format(db_name))
             return
 
