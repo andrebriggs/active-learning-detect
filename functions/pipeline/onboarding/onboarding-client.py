@@ -13,15 +13,13 @@ import pg8000
 print("\nTest client for CLI Onboarding scenario")
 print('-' * 40)
 
-# functionURL = "https://onboardinghttptrigger.azurewebsites.net/api/onboarding?code=lI1zl4IhiHcOcxTS85RsE7yZJXeNRxnr7tXSO1SrLWdpiN0W6hT3Jw=="
-functionURL = "http://localhost:7071/api/onboarding"
-# Sean's function URL:
-# functionURL = "https://onboardinghttptrigger.azurewebsites.net/api/onboarding?code=lI1zl4IhiHcOcxTS85RsE7yZJXeNRxnr7tXSO1SrLWdpiN0W6hT3Jw=="
-# functionURL = "https://abrig-linux-func.azurewebsites.net/api/onboarding"
+# functionURL = "http://localhost:7071/api/onboarding?userId=aka"
+functionURL = "https://onboardinghttptrigger.azurewebsites.net/api/onboarding?userId=aka"
 
 urlList = { "imageUrls": ["https://akaonboardingstorage.blob.core.windows.net/aka-temp-source-container/puppies1.jpg",
                          "https://akaonboardingstorage.blob.core.windows.net/aka-temp-source-container/puppies2.jpg",
-                         "https://akaonboardingstorage.blob.core.windows.net/aka-temp-source-container/puppies3.jpg"] }
+                         "https://akaonboardingstorage.blob.core.windows.net/aka-temp-source-container/puppies3.jpg",
+                         "https://akaonboardingstorage.blob.core.windows.net/aka-temp-source-container/puppies2.jpg"] }
 
 headers = {"Content-Type": "application/json"}
 
