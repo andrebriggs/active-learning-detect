@@ -10,7 +10,7 @@ from azure.storage.blob import BlockBlobService
 # TODO: User id as param to function - holding off until further discussion
 # regarding whether user ID should be generated/looked up by the CLI or
 # from within this function
-
+DEFAULT_RETURN_HEADER= { "content-type": "application/json"}
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
@@ -19,19 +19,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if not user_name:
         return func.HttpResponse(
             status_code=401,
-            headers={ "content-type": "application/json"},
+            headers=DEFAULT_RETURN_HEADER,
             body=json.dumps({"error": "invalid userName given or omitted"})
         )
 
     try:
         req_body = req.get_json()
-        logging.error(req.get_json())
+        logging.debug(req.get_json())
         raw_url_list = req_body["imageUrls"]
     except ValueError:
         print("Unable to decode JSON body")
         return func.HttpResponse("Unable to decode POST body", status_code=400)
 
-    logging.error(req_body)
+    #logging.error(req_body)
 
     # Build list of image objects to pass to DAL for insertion into DB.
     image_object_list = []
@@ -84,9 +84,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         new_blob_name = (str(image_id) + file_extension)
         copy_from_container = os.getenv('SOURCE_CONTAINER_NAME')
         copy_to_container = os.getenv('DESTINATION_CONTAINER_NAME')
-        permanent_storage_path = "https://{0}.blob.core.windows.net/{0}/{1}".format(copy_from_container, new_blob_name)
+        permanent_storage_path = "https://{0}.blob.core.windows.net/{1}/{2}".format(os.getenv('STORAGE_ACCOUNT_NAME'),copy_to_container, new_blob_name)
 
         # Verbose logging for testing
+        '''
         logging.info("Original image URL: " + original_image_url)
         logging.info("Original image name: " + original_blob_name)
         logging.info("File extension: " + file_extension)
@@ -94,7 +95,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.info("New blob name: " + new_blob_name)
         logging.info("Now copying file from temporary to permanent storage...")
         logging.info("Permanent image URL: " + permanent_storage_path)
-
+        '''
         blob_service = BlockBlobService(account_name=os.getenv('STORAGE_ACCOUNT_NAME'), account_key=os.getenv('STORAGE_ACCOUNT_KEY'))
         source_blob_url = blob_service.make_blob_url(copy_from_container, original_blob_name)
 
@@ -122,9 +123,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     data_access.update_image_urls(update_urls_dictionary, user_id)
     logging.info("Done.")
 
-    # Construct response string of permanent URLs
-    permanent_url_string = (", ".join(permanent_url_list))
-
-    # Return string containing list of URLs to images in permanent blob storage
-    return func.HttpResponse("The following images should now be added to the DB and exist in permanent blob storage: \n" 
-        + permanent_url_string, status_code=200)
+    content = json.dumps({"imageUrls":permanent_url_list})
+    return func.HttpResponse(
+        status_code=200,
+        headers=DEFAULT_RETURN_HEADER,
+        body=content
+    )
