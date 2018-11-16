@@ -152,13 +152,10 @@ def download_images(config, image_dir, json_resp):
     for index in range(len(urls)):
         url = urls[index]
 
-        # file will look something like
-        # https://csehackstorage.blob.core.windows.net/image-to-tag/image4.jpeg
-        # need to massage it to get the last portion.
-
         file_name = url.split('/')[-1]
 
-        # todo: change this when we get actual data.
+        #TODO: We will download an empty file if we get a permission error on the blob store URL
+        # We should raise an exception. For now the blob store must be publically accessible 
         response = requests.get(url)
         file_path = pathlib.Path(image_dir / file_name)
 
