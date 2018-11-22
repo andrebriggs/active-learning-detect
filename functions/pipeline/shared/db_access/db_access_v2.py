@@ -4,7 +4,10 @@ import random
 from enum import IntEnum, unique
 import getpass
 import itertools
-from ..db_provider import DatabaseInfo, PostGresProvider
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+#print(sys.path)
+from db_provider import DatabaseInfo, PostGresProvider
 
 
 @unique
@@ -44,6 +47,25 @@ class VottImageTag(ImageTag):
         self.image_height = image_height
         self.image_width = image_width
 
+
+class Prediction(object):
+    def __init__(self, image_id, x_min, x_max, y_min, y_max, classification_name, box_confidence, image_confidence):
+        self.image_id = image_id
+        self.x_min = x_min
+        self.x_max = x_max
+        self.y_min = y_min
+        self.y_max = y_max
+        self.classification_name = classification_name
+        #self.image_height = image_height
+        #self.image_width = image_width
+        self.box_confidence = box_confidence
+        self.image_confidence = image_confidence
+
+class TrainingSession(object):
+    def __init__(self, training_desc, model_path, list_of_predictions):
+        self.training_desc = training_desc
+        self.model_path = model_path
+        self.list_of_predictions= list_of_predictions
 
 class ImageTagDataAccess(object):
     def __init__(self,  db_provider):
@@ -191,7 +213,7 @@ class ImageTagDataAccess(object):
                 logging.debug(row)
                 tag_id = row[0]
                 if tag_id in tag_id_to_VottImageTag:
-                    logging.debug("Existing ImageTag found, appending classification {}", row[6])
+                    logging.debug("Existing ImageTag found, appending classification {0}".format(row[6]))
                     tag_id_to_VottImageTag[tag_id].classification_names.append(row[6].strip())
                 else:
                     logging.debug("No existing ImageTag found, creating new ImageTag: "
@@ -326,6 +348,56 @@ class ImageTagDataAccess(object):
             logging.error("An errors occured updating tagged image: {0}".format(e))
             raise
         finally: conn.close()
+    
+    def get_classification_map(self, classification_names):
+        class_name_id_map = {}
+        distinct_classification_names = set(classification_names)
+        try:
+            conn = self._db_provider.get_connection()
+            try:
+                cursor = conn.cursor()
+                class_names = '{0}'.format(', '.join(distinct_classification_names))
+                query = "SELECT ClassificationName,ClassificationId FROM classification_info WHERE ClassificationName IN ({0})"
+                cursor.execute(query.format(class_names))
+                for row in cursor:
+                    class_name_id_map[str(row[0])] = int(row[1])
+            finally: cursor.close()
+        except Exception as e:
+            logging.error("An errors occured updating tagged image: {0}".format(e))
+            raise
+        finally: conn.close()
+        return class_name_id_map
+
+    def save_training_session(self, training_session, user_id):
+        distinct_classification_names=set([pred.classification_name for pred in training_session.list_of_predictions])
+        '''
+        if(not training_session):
+            return
+
+        if type(user_id) is not int:
+            raise TypeError('user id must be an integer')
+
+        #Get distinct classification name
+        #Get classification name to id mapping
+        #Modify payload to use classification id    
+        '''
+        class_name_id_map = {}
+        try:
+            conn = self._db_provider.get_connection()
+            try:
+                cursor = conn.cursor()
+                class_names = '{0}'.format(', '.join(distinct_classification_names))
+                query = "SELECT ClassificationName,ClassificationId FROM classification_info WHERE ClassificationName IN ({0})"
+                cursor.execute(query.format(class_names))
+                for row in cursor:
+                    class_name_id_map[str(row[0])] = int(row[1])
+            finally: cursor.close()
+        except Exception as e:
+            logging.error("An errors occured updating tagged image: {0}".format(e))
+            raise
+        finally: conn.close()
+       
+        print("There are {0} predictions".format(len(distinct_classification_names)))
 
 class ArgumentException(Exception):
     pass
@@ -347,7 +419,7 @@ def main():
     # from db_provider import DatabaseInfo, PostGresProvider
 
     #Replace me for testing
-    db_config = DatabaseInfo("","","","")
+    db_config = DatabaseInfo(os.getenv("DB_HOST"),os.getenv("DB_NAME"),os.getenv("DB_USER"),os.getenv("DB_PASS"))
     data_access = ImageTagDataAccess(PostGresProvider(db_config))
     user_id = data_access.create_user(getpass.getuser())
     logging.info("The user id for '{0}' is {1}".format(getpass.getuser(),user_id))
@@ -357,6 +429,15 @@ def main():
 
     image_tags = generate_test_image_tags(list(url_to_image_id_map.values()),4,4)
     data_access.update_tagged_images(image_tags,user_id)
+
+
+
+
+    predictons = generate_test_predictions(image_tags)
+    model_name = "model_{0}.pb".format(id_generator(size=random.randint(4,10)))
+    model_path = "https://mock-storage.blob.core.windows.net/models/{0}".format(model_name)
+    training_session = TrainingSession("My new training session",model_path, predictons)
+    data_access.save_training_session(training_session,user_id)
 
 
 TestClassifications = ("maine coon","german shephard","goldfinch","mackerel","african elephant","rattlesnake")
@@ -384,6 +465,16 @@ def generate_test_image_tags(list_of_image_ids,max_tags_per_image,max_classifica
             image_tag = ImageTag(image_id,x_min,x_max,y_min,y_max,random.sample(TestClassifications,classifications_per_tag))
             list_of_image_tags.append(image_tag)
     return list_of_image_tags
+
+def generate_test_predictions(list_of_image_tags):
+    list_of_predictions = []
+    for image_tag in list(list_of_image_tags):
+        for classification_name in list(image_tag.classification_names):
+            img_con = random.uniform(0.75, 1)
+            box_con = random.uniform(img_con, 1)
+            pred = Prediction(image_tag.image_id,image_tag.x_min,image_tag.x_max,image_tag.y_min,image_tag.y_max,classification_name, box_con,img_con)
+            list_of_predictions.append(pred)
+    return list_of_predictions
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
