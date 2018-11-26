@@ -44,6 +44,20 @@ class VottImageTag(ImageTag):
         self.image_height = image_height
         self.image_width = image_width
 
+class Label(object):
+    def __init__(self, image_id, image_location, classification_name,x_min, x_max, y_min, y_max, image_height, image_width, box_confidence=0, image_confidence= 0):
+        self.image_id = image_id
+        self.image_location = image_location
+        self.classification_name = classification_name
+        self.x_min = x_min
+        self.x_max = x_max
+        self.y_min = y_min
+        self.y_max = y_max
+        self.image_height = image_height
+        self.image_width = image_width
+        self.box_confidence = box_confidence
+        self.image_confidence = image_confidence
+        
 
 class ImageTagDataAccess(object):
     def __init__(self,  db_provider):
@@ -191,7 +205,7 @@ class ImageTagDataAccess(object):
                 logging.debug(row)
                 tag_id = row[0]
                 if tag_id in tag_id_to_VottImageTag:
-                    logging.debug("Existing ImageTag found, appending classification {}", row[6])
+                    logging.debug("Existing ImageTag found, appending classification {0}".format(row[6]))
                     tag_id_to_VottImageTag[tag_id].classification_names.append(row[6].strip())
                 else:
                     logging.debug("No existing ImageTag found, creating new ImageTag: "
@@ -327,6 +341,36 @@ class ImageTagDataAccess(object):
             raise
         finally: conn.close()
 
+    def get_labels(self):
+        list_of_labels = []
+        try:
+            conn = self._db_provider.get_connection()
+            try:
+                cursor = conn.cursor()
+                query = ("SELECT "
+                        "a.imageid, a.imagelocation, d.classificationname, b.x_min, "
+                        "b.x_max, b.y_min, b.y_max, a.height, a.width "  
+                        "FROM image_info a join image_tags b on a.imageid = b.imageid "
+                        "join tags_classification c on b.imagetagid = c.imagetagid "
+                        "join classification_info d on c.classificationid = d.classificationid "
+                        "join user_info e on b.createdbyuser = e.userid "
+                        "WHERE a.imagelocation LIKE (%s) "
+                        "order by d.createddtim ASC limit 40")
+                #formatted_query = query.format("('%abriglinuxstor%')")
+                replace = '%{}%'.format('abriglinuxstor')
+                cursor.execute(query,(replace,))
+                for row in cursor:
+                    label = Label(row[0],row[1],row[2],float(row[3]),float(row[4]),float(row[5]),float(row[6]),int(row[7]),int(row[8]))
+                    list_of_labels.append(label)
+            finally:
+                cursor.close()
+        except Exception as e:
+            logging.error("An error occurred getting labels: {0}".format(e))
+            raise
+        finally:
+            conn.close()
+        return list(list_of_labels)
+
 class ArgumentException(Exception):
     pass
 
@@ -384,6 +428,14 @@ def generate_test_image_tags(list_of_image_ids,max_tags_per_image,max_classifica
             image_tag = ImageTag(image_id,x_min,x_max,y_min,y_max,random.sample(TestClassifications,classifications_per_tag))
             list_of_image_tags.append(image_tag)
     return list_of_image_tags
+
+def generate_test_labels(list_of_image_tags):
+    list_of_labels = []
+    for image_tag in list(list_of_image_tags):
+        for classification_name in list(image_tag.classification_names):
+            label = Label(image_tag.image_id,'',classification_name,image_tag.x_min,image_tag.x_max,image_tag.y_min,image_tag.y_max,50, 50)
+            list_of_labels.append(label)
+    return list_of_labels
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
