@@ -45,7 +45,7 @@ python ${tf_location}/export_inference_graph.py --input_type "image_tensor" --pi
 # TODO: Validation on Model, keep track of MAP etc.
 # Use inference graph to create predictions on untagged images
 echo "Creating new predictions"
-python ${python_file_directory}/create_predictions.py   .ini
+python ${python_file_directory}/create_predictions.py cur_config.ini
 echo "Calculating performance"
 python ${python_file_directory}/map_validation.py cur_config.ini
 # Rename predictions and inference graph based on timestamp and upload
