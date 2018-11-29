@@ -3,6 +3,8 @@ import logging
 import json
 import azure.functions as func
 
+from urllib.request import urlopen
+from PIL import Image
 from ..shared.db_provider import get_postgres_provider
 from ..shared.db_access import ImageTagDataAccess, ImageInfo
 from ..shared.onboarding import copy_images_to_permanent_storage
@@ -30,7 +32,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if not raw_url_list:
         return func.HttpResponse("ERROR: URL list empty.", status_code=401)
-    
+
     # Check to ensure image URLs sent by client are all unique.
     url_list = set(raw_url_list)
 
@@ -42,7 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         data_access = ImageTagDataAccess(get_postgres_provider())
-        user_id= data_access.create_user(user_name)
+        user_id = data_access.create_user(user_name)
 
         logging.debug("Add new images to the database, and retrieve a dictionary ImageId's mapped to ImageUrl's")
         image_id_url_map = data_access.add_new_images(image_object_list,user_id)
@@ -85,8 +87,10 @@ def build_objects_from_url_list(url_list):
         # Split original image name from URL
         original_filename = url.split("/")[-1]
         # Create ImageInfo object (def in db_access.py)
-        # TODO: Figure out where actual height/width need to come from. Values are hard-coded for testing.
-        image = ImageInfo(original_filename, url, 50, 50)
+
+        with Image.open(urlopen(url)) as img:
+            width, height = img.size
+        image = ImageInfo(original_filename, url, height, width)
         # Append image object to the list
         image_object_list.append(image)
     return image_object_list
