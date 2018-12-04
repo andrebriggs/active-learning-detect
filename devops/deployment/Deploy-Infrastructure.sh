@@ -27,7 +27,7 @@ if [ -z "$1" ]; then
     echo "Usage: 'sh $0 (Configuration file)' or SET Environment Variables"
 fi
 
-# If arg exists but the config file present?
+# If arg exists but the config file isn't present?
 if [ -n "$1" ] && [ ! -e "$1" ]; then
     echo "Configuration file does not exist."
     exit 1
@@ -54,12 +54,19 @@ fi
 pip install -r ../../requirements.txt
 
 # Setup database
+DEPLOY_POSTGRES_SERVER=${DEPLOY_POSTGRES:="true"}
+
 DATABASE_USERNAME_AT_HOST="$DATABASE_USERNAME@$DATABASE_SERVER_NAME"
-. ./Deploy-Postgres-DB.sh $RESOURCE_GROUP $DATABASE_SERVER_NAME "$DATABASE_USERNAME" $DATABASE_PASSWORD
-if [ "$?" -ne 0 ]; then
-    echo "Unable to setup database"
-    exit 1
+if $DEPLOY_POSTGRES_SERVER; then
+    . ./Deploy-Postgres-DB.sh $RESOURCE_GROUP $DATABASE_SERVER_NAME "$DATABASE_USERNAME" $DATABASE_PASSWORD
+    if [ "$?" -ne 0 ]; then
+        echo "Unable to setup database"
+        exit 1
+    fi
+else
+    echo "Skipping deploy of Postgres SQL server"
 fi
+
 
 # Setup database schema
 DB_HOST_FULL_NAME="$DATABASE_SERVER_NAME"".postgres.database.azure.com"
