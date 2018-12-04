@@ -10,10 +10,10 @@ StorageName=$2
 FunctionAppName=$3
 AppInsightsName=$4
 
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ] || [ -z "$5" ] || [ -z "$6" ] || [ -z "$7" ] || [ -z "$8" ] || [ -z "$9" ] || [ -z "${10}" ] || [ -z "${11}" ] || [ -z "${12}" ]; then
-    echo "Usage: 'sh $0 (Azure Resource Group Name) (Azure Function Storage Name) (Azure Function App Name) (AppInsightsName) (Storage account) (Source container) (Dest container) (DB Server Name) (DB Username) (DB Password) (DB Name)'"
-    exit 1
-fi
+# if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ] || [ -z "$5" ] || [ -z "$6" ] || [ -z "$7" ] || [ -z "$8" ] || [ -z "$9" ] || [ -z "${10}" ] || [ -z "${11}" ] || [ -z "${12}" ]; then
+#     echo "Usage: 'sh $0 (Azure Resource Group Name) (Azure Function Storage Name) (Azure Function App Name) (AppInsightsName) (Storage account) (Source container) (Dest container) (DB Server Name) (DB Username) (DB Password) (DB Name)'"
+#     exit 1
+# fi
 
 STORAGE_ACCOUNT_NAME="$5"
 STORAGE_ACCOUNT_KEY="$6"
