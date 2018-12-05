@@ -57,7 +57,7 @@ DATABASE_USERNAME_AT_HOST="$DATABASE_USERNAME@$DATABASE_SERVER_NAME"
 
 #Only skip the deploy if the server exists and we are configured not to deploy
 query_result=$(az postgres server list --query "[?name=='$DATABASE_SERVER_NAME'].name")
-if [[ $query_result=~ $DATABASE_SERVER_NAME ]] && $DEPLOY_POSTGRES_SERVER;
+if [[ $query_result =~ $DATABASE_SERVER_NAME ]] && $DEPLOY_POSTGRES_SERVER;
 then
     echo && echo "Skipping deployment of PostgreSQL server $DATABASE_SERVER_NAME" && echo
 else
