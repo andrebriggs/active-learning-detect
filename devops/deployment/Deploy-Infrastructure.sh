@@ -54,14 +54,18 @@ DEPLOY_POSTGRES_SERVER=${DEPLOY_POSTGRES:="true"}
 
 # Setup database
 DATABASE_USERNAME_AT_HOST="$DATABASE_USERNAME@$DATABASE_SERVER_NAME"
-if $DEPLOY_POSTGRES_SERVER; then
+
+#Only skip the deploy if the server exists and we are configured not to deploy
+query_result=$(az postgres server list --query "[?name=='$DATABASE_SERVER_NAME'].name")
+if [[ $query_result=~ $DATABASE_SERVER_NAME ]] && $DEPLOY_POSTGRES_SERVER;
+then
+    echo && echo "Skipping deployment of PostgreSQL server $DATABASE_SERVER_NAME" && echo
+else
     . ./Deploy-Postgres-DB.sh $RESOURCE_GROUP $DATABASE_SERVER_NAME "$DATABASE_USERNAME" $DATABASE_PASSWORD
     if [ "$?" -ne 0 ]; then
         echo "Unable to setup database"
         exit 1
     fi
-else
-    echo "Skipping deploy of Postgres SQL server"
 fi
 
 # Setup database schema
