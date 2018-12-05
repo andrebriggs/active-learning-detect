@@ -61,6 +61,7 @@ if [[ $query_result =~ $DATABASE_SERVER_NAME ]] && ! $DEPLOY_POSTGRES_SERVER;
 then
     echo && echo "Skipping deployment of PostgreSQL server $DATABASE_SERVER_NAME" && echo
 else
+    echo "Entering deployment of PostgreSQL server $DATABASE_SERVER_NAME"
     . ./Deploy-Postgres-DB.sh $RESOURCE_GROUP $DATABASE_SERVER_NAME "$DATABASE_USERNAME" $DATABASE_PASSWORD
     if [ "$?" -ne 0 ]; then
         echo "Unable to setup database"
@@ -69,6 +70,7 @@ else
 fi
 
 # Setup database schema
+echo "Installing of database resources to PostgreSQL server $DATABASE_SERVER_NAME"
 DB_HOST_FULL_NAME="$DATABASE_SERVER_NAME"".postgres.database.azure.com"
 (cd ../../db && export DB_HOST=$DB_HOST_FULL_NAME && export DB_USER="$DATABASE_USERNAME_AT_HOST" && export DB_PASS=$DATABASE_PASSWORD && ./install-db-resources.py --overwrite $DATABASE_NAME)
 
