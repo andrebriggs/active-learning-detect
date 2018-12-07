@@ -542,7 +542,7 @@ def main():
     # from db_provider import DatabaseInfo, PostGresProvider
 
     #Replace me for testing
-    db_config = DatabaseInfo("","","","")
+    db_config = DatabaseInfo("abrig-db.postgres.database.azure.com","tonic","abrigtest@abrig-db","abcdABCD123")
     data_access = ImageTagDataAccess(PostGresProvider(db_config))
     user_id = data_access.create_user(getpass.getuser())
     logging.info("The user id for '{0}' is {1}".format(getpass.getuser(),user_id))
