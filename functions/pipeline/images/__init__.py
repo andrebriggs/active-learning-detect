@@ -49,7 +49,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 image_infos = data_access.get_image_info_for_image_ids(image_ids.split(','))
             elif tag_status:
                 image_count = int(image_count)
-                images_by_tag_status = data_access.get_images_by_tag_status(user_id, tag_status, image_count)
+                images_by_tag_status = data_access.get_images_by_tag_status(tag_status, image_count)
                 image_infos = data_access.get_image_info_for_image_ids(list(images_by_tag_status.keys()))
 
             content = json.dumps(image_infos)
