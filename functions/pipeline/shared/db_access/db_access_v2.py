@@ -53,7 +53,7 @@ class ImageLabel(object):
         self.image_height = image_height
         self.image_width = image_width
         self.user_folder = user_folder
-        self.labels = [labels]
+        self.labels = labels
 
 class Tag(object):
     def __init__(self,classificationname, x_min: float, x_max: float, y_min: float, y_max: float):
