@@ -73,32 +73,6 @@ def download_data_for_training(config, num_images):
     return { "imageURLs": image_urls_to_download,
              "taggedLabelData": tagged_label_data }
 
-
-def convert_to_csv(training_data, file_location):
-    file_location = os.path.expanduser(file_location)
-    # Convert tagged images into their own csv
-    with open(file_location + '/tagged.csv', 'w') as csvfile:
-        filewriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerow(['filename','class','xmin','xmax','ymin','ymax','height','width'])
-        for item in training_data["taggedImageData"]["frames"]:
-            for tags in training_data["taggedImageData"]["frames"][item]:
-                for tag in training_data["taggedImageData"]["frames"][item][0]["tags"]:
-                    data = [item, tag, tags['x1'], tags['x2'], tags['y1'], tags['y2'], tags['height'], tags['width']]
-                    filewriter.writerow(data)
-
-    # Convert totag images into their own csv
-    with open(file_location + '/totag.csv', 'w') as csvfile:
-        filewriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerow(['filename','class','xmin','xmax','ymin','ymax','height','width','folder','box_confidence','image_confidence'])
-        for item in training_data["toTagImageInfo"]:
-            filename = get_image_name_from_url(item['location'])
-            data = [filename, 'NULL', 0, 0, 0, 0, item['height'], item['width'], '', 0, 0]
-            filewriter.writerow(data)
-    
-    print("Created csv files with metadata " + file_location + "/tagged.csv and " + file_location + "/totag.csv")
-
 def convert_labels_to_csv(data, tagging_output_file_path):
     try:
         if not os.path.exists(tagging_output_file_path):
