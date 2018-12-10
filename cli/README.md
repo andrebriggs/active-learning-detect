@@ -43,9 +43,6 @@ TAGGED_OUTPUT=${TAGGING:TAGGING_LOCATION}/tagged.csv
 `TAGGING_IMAGE_DIR` is the location where all images will be downloaded to for training
 `TAGGED_OUTPUT` is the location of the CSV file that will have human labelled data
 
-`TAGGING_IMAGE_DIR` is the location where all images will be downloaded to for training
-`TAGGED_OUTPUT` is the location of the CSV file that will have human labelled data
-
 ### Commands
 
 #### Initialize a dataset/Onboard an existing dataset.
