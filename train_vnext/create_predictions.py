@@ -6,6 +6,7 @@ import cv2
 import csv
 from collections import defaultdict
 import numpy as np
+import logging
 
 NUM_CHANNELS=3
 FOLDER_LOCATION=8
@@ -119,11 +120,14 @@ def get_suggestions(detector, basedir: str, untagged_output: str,
             reader = csv.reader(file)
             next(reader, None)
             already_tagged = {row[0] for row in reader}
+            logging.info("\nFound {} rows in tagged data".format(len(already_tagged)))
         with open(cur_tagging, 'r') as file:
             reader = csv.reader(file)
             next(reader, None)
             already_tagged |= {row[0] for row in reader}
+            logging.info("\nIncreased row count to {} for based on 'in progress' data".format(len(already_tagged)))
         all_image_files = list(basedir.rglob(filetype))
+        logging.info("\nFound '{}' images of EXACT filetype '{}'".format(len(all_image_files),filetype))
         all_names = [filename.name for filename in all_image_files]
         all_sizes = [cv2.imread(str(image), CV2_COLOR_LOAD_FLAG).shape[:2] for image in all_image_files]
         all_images = np.zeros((len(all_image_files), *reversed(image_size), NUM_CHANNELS), dtype=np.uint8)
@@ -133,12 +137,25 @@ def get_suggestions(detector, basedir: str, untagged_output: str,
     make_csv_output(all_predictions, all_names, all_sizes, untagged_output, tagged_output, already_tagged, user_folders)
 
 if __name__ == "__main__":
-    from azure.storage.blob import BlockBlobService
-    from train.tf_detector import TFDetector
-    import re
     import sys
-    import os    
-    from utils.config import Config
+    import os 
+    train_dir = str(Path.cwd().parent / "train")
+    if train_dir not in sys.path:
+        sys.path.append(train_dir)
+    from tf_detector import TFDetector
+    import re
+   
+    #Set up logging
+    console = logging.StreamHandler()
+    log = logging.getLogger()
+    log.setLevel(os.environ.get("LOGLEVEL",'DEBUG')) #Set in config
+    log.addHandler(console)
+
+    # Allow us to import utils
+    config_dir = str(Path.cwd().parent / "utils")
+    if config_dir not in sys.path:
+        sys.path.append(config_dir)
+    from config import Config
     if len(sys.argv)<2:
         raise ValueError("Need to specify config file")
     config_file = Config.parse_file(sys.argv[1])
@@ -150,13 +167,20 @@ if __name__ == "__main__":
     inference_graph_path = str(Path(config_file["inference_output_dir"])/"frozen_inference_graph.pb")
     supported_file_type = config_file["filetype"]
     
+    #TODO: Make sure $PYTHONPATH has this in it --> /opt/caffe/python:/opt/caffe2/build:
+
     #TODO: make sure tagged.csv exists
     cur_tagged = None
-    cur_tagged = "tagged.csv"
+    cur_tagged = "../train/tagged.csv" #HACK: We expect this file to be in this script directory 
 
-    # These are the "tagging in progress" labels. Meaning they will haev null labels and class names
+    # These are the "tagging in progress" labels. Meaning they will have null labels and class names
     cur_tagging = None
-    cur_tagging = "tagging.csv"
+    cur_tagging = "../train/tagging.csv" #HACK: We expect this file to be in this script directory 
 
+    logging.info("\n****Initializing TF Detector...****")
     cur_detector = TFDetector(classification_names, inference_graph_path)
+    logging.info("\n****Initializing TF Detector DONE****")
+
+    logging.info("\n****Creating Suggestions****")
     get_suggestions(cur_detector, image_dir, untagged_output, tagged_output, cur_tagged, cur_tagging, filetype=supported_file_type, min_confidence=float(config_file["min_confidence"]), user_folders=config_file["user_folders"]=="True")
+    logging.info("\n****Creating Suggestions DONE****")

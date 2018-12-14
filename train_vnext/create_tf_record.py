@@ -124,19 +124,23 @@ def create_tf_record(pred_file, record_file, image_loc, user_folders, split_name
 if __name__ == "__main__":
     import sys
     import os    
-    # from utils.config import Config
-    # if len(sys.argv)<2:
-    #     raise ValueError("Need to specify config file")
-    # config_file = Config.parse_file(sys.argv[1])
+    # Allow us to import utils
+    config_dir = str(Path.cwd().parent / "utils")
+    if config_dir not in sys.path:
+        sys.path.append(config_dir)
+    from config import Config
+    if len(sys.argv)<2:
+        raise ValueError("Need to specify config file")
+    config_file = Config.parse_file(sys.argv[1])
 
     log = logging.getLogger()
     log.setLevel(os.environ.get("LOGLEVEL", "INFO")) # or get the log level from the config file
 
-    tagged_csv = "/Users/andrebriggs/Documents/active-learning/training/tagged.csv" #config_file["tagged_output"]
-    tf_record_output = "/Users/andrebriggs/Documents/active-learning/training/stamps.record" #config_file["tf_record_location"]
-    all_downloaded_images = "/Users/andrebriggs/Documents/active-learning/training/AllImages" #config_file["image_dir"]
+    tagged_csv = config_file["tagged_output"]
+    tf_record_output = config_file["tf_record_location"]
+    all_downloaded_images = config_file["image_dir"]
     use_folders = False #config_file["user_folders"] 
-    list_of_class_names = ["land","water"]#config_file["classes"].split(",")
+    list_of_class_names = config_file["classes"].split(",")
 
     if not os.path.isfile(tagged_csv):
         print("Annotated labels file doesn't exist. Run set up to download all dependent training data")

@@ -204,7 +204,11 @@ if __name__ == "__main__":
     import re   
     import sys
     import os    
-    from utils.config import Config
+    # Allow us to import utils
+    config_dir = str(Path.cwd().parent / "utils")
+    if config_dir not in sys.path:
+        sys.path.append(config_dir)
+    from config import Config
     if len(sys.argv)<2:
         raise ValueError("Need to specify config file")
     config_file = Config.parse_file(sys.argv[1])
