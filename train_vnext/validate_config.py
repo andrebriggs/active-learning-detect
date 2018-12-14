@@ -37,6 +37,7 @@ def get_legacy_config(config_path: str) -> dict:
     keys_we_care_about = [
         "data_dir", 
         "tagged_output",
+        "tagging_output",
         "image_dir",
         "train_dir",
         "filetype",
