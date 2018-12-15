@@ -52,7 +52,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         return func.HttpResponse(
             body=json.dumps(upload_data),
-            status_code=200,
+            status_code=201,
             headers={ "content-type": "application/json"},
         )
     except Exception as e:

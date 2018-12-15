@@ -82,3 +82,10 @@ class PredictionLabel(AnnotatedLabel):
         self.image_width = image_width
         self.box_confidence = box_confidence
         self.image_confidence = image_confidence
+
+class TrainingSession(object):
+    def __init__(self, description, model_url, avg_perf: float, class_perf: dict):
+        self.description = description
+        self.model_url = model_url
+        self.avg_perf = avg_perf
+        self.class_perf = class_perf 
