@@ -76,7 +76,7 @@ def download_data_for_training(user_name, function_url):
     response = requests.get(url, params=query)
     tagged_label_data = response.json()
 
-    tagging_image_data = set([item['name'] for item in all_images_json if item['tagstate'] == ImageTagState.TAG_IN_PROGRESS])
+    tagging_image_data = set([get_image_name_from_url(item['location']) for item in all_images_json if item['tagstate'] == ImageTagState.TAG_IN_PROGRESS])
     return { "imageURLs": image_urls_to_download,
              "taggedLabelData": tagged_label_data,
              "taggingLabelData": tagging_image_data }
