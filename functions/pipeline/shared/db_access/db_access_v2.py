@@ -314,6 +314,8 @@ class ImageTagDataAccess(object):
 
     def get_classification_map(self, class_names: set, user_id: int) -> dict:
         class_to_id = {}
+        if not class_names:
+            raise ValueError("Classification names must be present")
         try:
             conn = self._db_provider.get_connection()
             try:

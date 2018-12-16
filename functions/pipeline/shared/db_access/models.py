@@ -30,8 +30,9 @@ class ImageTag(object):
     
     @staticmethod
     def fromJson(dictionary):
-        image_tag = ImageTag(dictionary["image_id"], dictionary["x_min"], dictionary["x_max"], dictionary["y_min"], dictionary["y_max"], dictionary["classification_names"])
-        return image_tag
+        if dictionary.items():
+            image_tag = ImageTag(dictionary["image_id"], dictionary["x_min"], dictionary["x_max"], dictionary["y_min"], dictionary["y_max"], dictionary["classification_names"])
+            return image_tag
 
 #This class doesn't have box and image confidence because they are human curated labels
 class AnnotatedLabel(object):
