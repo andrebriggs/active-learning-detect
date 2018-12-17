@@ -28,6 +28,8 @@ def train(legacy_config, user_name, function_url):
     # create csv file from this data
     convert_tagged_labels_to_csv(training_data["taggedLabelData"],legacy_config.get('tagged_output'))
     convert_tagging_labels_to_csv(training_data["taggingLabelData"], legacy_config.get('tagging_output'))
+
+    #create label map
     create_pascal_label_map(legacy_config.get('label_map_path'),legacy_config.get('classes').split(","))
 
 
