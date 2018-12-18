@@ -63,15 +63,15 @@ def onboard_folder(config, folder_name):
     }
 
     response = requests.post(functions_url, json=data, params=query)
+    response_json = response.json()
     response.raise_for_status()
 
-    print("Successfully uploaded images.")
-    #TODO: Recent Onboarding refactoring doesn't return ImageURLs anymore
-    # json_resp = response.json()
-    # count = len(json_resp['imageUrls'])
-    # print("Successfully uploaded " + str(count) + " images.")
-    # for url in json_resp['imageUrls']:
-    #     print(url)
+    if 'Success' in response_json:
+        print("Successfully onboarded {0} images.".format(len(images)))
+    if 'copy_failed' in response_json:
+        print("Failed to copy following images to permanent storage: " + str(response_json['copy_failed']))
+    if 'delete_failed' in response_json:
+        print("Failed to delete following images from permanent storage: " + str(response_json['delete_failed']))
 
 
 def onboard_container(config, account, key, container):
@@ -111,12 +111,13 @@ def _download_bounds(num_images):
 
 def download(config, num_images, strategy=None):
     # TODO: better/more proper URI handling.
-    functions_url = config.get("url") + "/api/download"
+    functions_url = config.get("url") + "/api/images"
     user_name = config.get("tagging_user")
     images_to_download = _download_bounds(num_images)
     query = {
         "imageCount": images_to_download,
-        "userName": user_name
+        "userName": user_name,
+        "checkOut": "true"
     }
 
     response = requests.get(functions_url, params=query)
@@ -201,7 +202,7 @@ def write_vott_data(image_dir, json_resp):
 
 
 def upload(config):
-    functions_url = config.get("url") + "/api/upload"
+    functions_url = config.get("url") + "/api/labels"
     user_name = config.get("tagging_user")
     tagging_location = pathlib.Path(
         os.path.expanduser(config.get("tagging_location"))
@@ -214,7 +215,8 @@ def upload(config):
         json_data = json.load(json_file)
     process_json = process_vott_json(json_data)
     query = {
-        "userName": user_name
+        "userName": user_name,
+        "upload": "true"
     }
 
     response = requests.post(functions_url, json=process_json, params=query)
