@@ -8,6 +8,7 @@ from utils.blob_utils import BlobStorage
 from utils.config import Config
 from .validate_config import get_legacy_config, initialize_training_location
 import urllib.request
+from urlpath import URL
 import sys
 import time
 import jsonpickle
@@ -48,7 +49,8 @@ def download_images(image_urls, folder_location):
 
     try:
         for image_url in image_urls:
-            file_name = get_image_name_from_signed_url(image_url)
+            parsed_url = URL(image_url)
+            file_name = parsed_url.name
             if file_name not in existing_files:
                 with urllib.request.urlopen(image_url) as response, open(folder_location + '/' + str(file_name), 'wb') as out_file:
                     data = response.read() # a `bytes` object
@@ -266,12 +268,6 @@ def process_classifications(perf_location, user_name,function_url):
 def get_image_name_from_url(image_url):
     start_idx = image_url.rfind('/')+1
     return image_url[start_idx:]
-
-def get_image_name_from_signed_url(image_url):
-    query_string_begin_idx = image_url.rfind('?')
-    url_without_query = image_url[:query_string_begin_idx]
-    start_idx = url_without_query.rfind('/')+1
-    return url_without_query[start_idx:] 
 
 def create_pascal_label_map(label_map_path: str, class_names: list):
     with open(label_map_path, "w") as map_file:
