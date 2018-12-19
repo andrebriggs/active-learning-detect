@@ -286,8 +286,12 @@ if __name__ == "__main__":
     if operation == "start":
         train(legacy_config, config.get("tagging_user"), config.get("url"))
     elif operation == "save":
-        # Upload the model saved at ${inference_output_dir}/frozen_inference_graph.pb
+        # The model is saved relative to the python_file_directory in 
+        # ${inference_output_dir}/frozen_inference_graph.pb
+        path_to_model = os.path.join(legacy_config.get("python_file_directory"),
+            legacy_config.get("inference_output_dir"),
+            "/frozen_inference_graph.pb")
         save_training_session(config, 
-                                os.path.join(legacy_config.get("python_file_directory"),legacy_config.get("inference_output_dir") + "/frozen_inference_graph.pb"),
+                                path_to_model,
                                 legacy_config.get("validation_output"),
                                 legacy_config.get("untagged_output"))
