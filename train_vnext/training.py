@@ -22,7 +22,7 @@ def train(legacy_config, user_name, function_url):
     training_data = download_data_for_training(user_name, function_url)
 
     # Make sure directory is clean:
-   file_location = initialize_training_location(legacy_config)
+    file_location = initialize_training_location(legacy_config)
 
     # Grab tagged and totag images from the blob storage
     download_images(training_data["imageURLs"], legacy_config.get('image_dir'))
