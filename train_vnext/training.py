@@ -292,6 +292,6 @@ if __name__ == "__main__":
             legacy_config.get("inference_output_dir"),
             "/frozen_inference_graph.pb")
         save_training_session(config, 
-                                path_to_model,
-                                legacy_config.get("validation_output"),
-                                legacy_config.get("untagged_output"))
+            path_to_model,
+            legacy_config.get("validation_output"),
+            legacy_config.get("untagged_output"))
