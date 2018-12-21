@@ -20,11 +20,12 @@ FUNCTIONS_URL=https://mytagmanagement.azurewebsites.net/
 [STORAGE]
 STORAGE_ACCOUNT=
 STORAGE_KEY=
-STORAGE_CONTAINER=vott
+STORAGE_TEMP_CONTAINER=temp-container
+STORAGE_PERM_CONTAINER=perm-container
 
 [TAGGING]
 TAGGING_LOCATION=~/taggingdata
-TAGGING_USER="bhargav"
+TAGGING_USER=bhargav
 TAGGING_IMAGE_DIR=${TAGGING:TAGGING_LOCATION}/AllImages
 ```
 
@@ -33,7 +34,8 @@ TAGGING_IMAGE_DIR=${TAGGING:TAGGING_LOCATION}/AllImages
 
 `STORAGE_ACCOUNT` is the name of the Azure Storage Account used to upload images
 `STORAGE_KEY` is the secret key of the Azure Storage Account
-`STORAGE_CONTAINER` is the name of the container where the CLI deposits your image files.
+`STORAGE_TEMP_CONTAINER` is the name of the temporary container where the CLI deposits your image files while onboarding, and later copies them to perm storage.
+`STORAGE_PERM_CONTAINER` is the name of the container where the CLI deposits your image files after onboarding, and the model after training.
 
 `TAGGING_LOCATION` is the location on the user's machine where media will be downloaded
 `TAGGING_USER` is your username.
@@ -46,7 +48,7 @@ TAGGING_IMAGE_DIR=${TAGGING:TAGGING_LOCATION}/AllImages
 
 #### Initialize a dataset/Onboard an existing dataset.
 
-Usage: `python3 -m cli onboard -f /path/to/images/`
+Usage: `python3 -m cli.cli onboard -f /path/to/images/`
 
 Assuming your directory `/path/to/images` is a flat directory of images, you can use this CLI invocation to upload your images to a temporary storage container.
 
@@ -54,7 +56,7 @@ The onboarding function is then invoked, processing your images into the databas
 
 #### Download
 
-Usage: `python3 -m cli download -n 50`
+Usage: `python3 -m cli.cli download -n 50`
 
 Downloads 50 images to the location identified by `TAGGING_LOCATION` in your config.
 There is an upper bound of 100 images that can be downloaded at present.
@@ -63,7 +65,7 @@ Also generated is a VoTT json file containing any existing tags and labels.
 
 #### Upload tags
 
-Usage: `python3 -m cli upload`
+Usage: `python3 -m cli.cli upload`
 
 Uploads the VoTT json file to be processed into the database. Will also delete the image directory
 identified at `TAGGING_LOCATION`, so the next `download` cycle will commence without issue.

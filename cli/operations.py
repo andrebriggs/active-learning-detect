@@ -5,6 +5,7 @@ import json
 import copy
 import pathlib
 import os
+from urlpath import URL
 from azure.storage.blob import BlockBlobService, ContentSettings
 from utils.blob_utils import BlobStorage
 from utils.vott_parser import process_vott_json, create_starting_vott_json, build_id_to_VottImageTag, create_vott_json_from_image_labels
@@ -31,7 +32,7 @@ def supported_file_type(file_name):
 # TODO We should create the container if it does not exist
 def onboard_folder(config, folder_name):
     blob_storage = BlobStorage.get_azure_storage_client(config)
-    uri = 'https://' + config.get("storage_account") + '.blob.core.windows.net/' + config.get("storage_container") + '/'
+    uri = 'https://' + config.get("storage_account") + '.blob.core.windows.net/' + config.get("storage_temp_container") + '/'
     functions_url = config.get('url') + '/api/onboarding'
     user_name = config.get("tagging_user")
     images = []
@@ -45,7 +46,7 @@ def onboard_folder(config, folder_name):
 
         # Upload the created file, use image name for the blob name
         blob_storage.create_blob_from_path(
-            config.get("storage_container"),
+            config.get("storage_temp_container"),
             image,
             local_path,
             content_settings=ContentSettings(content_type='image/png')
@@ -169,15 +170,13 @@ def download_images(config, image_dir, json_resp):
 
     urls = json_resp['imageUrls']
     downloaded_file_paths = []
-    for index in range(len(urls)):
-        url = urls[index]
-
-        file_name = url.split('/')[-1]
+    for url_path in urls:
+        url = URL(url_path)
 
         #   TODO: We will download an empty file if we get a permission error on the blob store URL
         # We should raise an exception. For now the blob store must be publically accessible
         response = requests.get(url)
-        file_path = pathlib.Path(image_dir / file_name)
+        file_path = pathlib.Path(image_dir / url.name)
 
         with open(str(file_path), "wb") as file:
             for chunk in response.iter_content(chunk_size=128):
